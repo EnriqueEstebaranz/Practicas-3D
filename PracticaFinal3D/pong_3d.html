@@ -1,0 +1,626 @@
+<!--
+Partes implementadas:
+- Funcionalidad básica
+- Funcionalidad avanzada (ángulo de rebote variable segun zona de la pala, velocidad de
+desplazamiento vertical variable, posibilidad de ganar a la maquina)
+- Extras:Puedes elegir entre una gran variedad de skins , para personalizar el pong a tu gusto,
+tambien puedes elegir a que distancia ver el pong, aumentar la dificultad (en el modod mas dificil
+se le puede ganar a la maquina) y he implementado una barra de control del volumen para facilitar
+al ususario el cambio de este de forma mas rapida.
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+      <body>
+        <div id="controlvolumen">
+          <p>Control del volumen:</p>
+          <input type="range" id="barra" min="0.1" max="1.0" step="0.1" value="1">
+
+        </div>
+        <div id="instrucciones">
+
+          <p>Gana el &nbspprimero &nbspen &nbspconseguir 5 &nbsppuntos</p>
+          <p>Para &nbsp&nbspmoverte &nbsp&nbsp&nbsp&nbsp&nbspIzquierda&nbsp&nbsp&nbsp o &nbsp&nbspDerecha: </p>
+          <p>Utilice las flechas <= izq y der => o A y B</p>
+          <p id='MARCADOR'>0-0</p>
+          <p id = "inicio">Pulsa spacio para comenzar</p>
+
+
+        </div>
+
+        <div id="pantallainicio">
+
+          <audio id="audio" src="starwars.mp3" preload="auto"  autoplay></audio>
+          <script>
+            var volumen = document.getElementById("audio")
+            barra.addEventListener("change",function(ev){
+              volumen.volume = ev.currentTarget.value;
+              console.log(volumen.volume)
+            },true)
+
+          </script>
+
+          <div id="jugabilidad">
+            <p>Elija nivel de dificultad:</p>
+            <p><input type="radio" name="dificultad " value="1" > APRENDIZ</p>
+            <p><input type="radio" name="dificultad " value="2" checked> CABALLERO JEDI</p>
+            <p><input type="radio"  name="dificultad " value="3" > MAESTRO JEDI</p>
+            <p><input type="radio"  name="dificultad " value="4" > GRAN MAESTRO JEDI</p>
+            <p>Elija la camara</p>
+            <p><input type="radio" name="lejania" value="80" > Lejano</p>
+            <p><input type="radio" name="lejania" value="70" checked> Normal</p>
+            <p><input type="radio"  name="lejania" value="60" > Cerca</p>
+            <p><input type="radio"  name="lejania" value="50" > Muy Cerca</p>
+          </div>
+          <div id="personalización">
+            <p>Elija la nave:</p>
+            <p>
+              <input type="radio" name="nave" value="X-WING" checked> X-WING&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+              <img class ="esferaimagen" src="nave-jugador.png" alt="X-WING">
+            </p>
+            <p>
+              <input type="radio" name="nave" value="Halcón Milenario" > Halcón Milenario
+              <img class ="esferaimagen" src="nave-Halcon.png" alt="Halcon Milenario">
+            </p>
+            <p>
+              <input type="radio" name="nave" value="destructor" > Destructor&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+              <img class ="esferaimagen" src="destructor-nave.png" alt="Destructor">
+            </p>
+            <p>
+              <input type="radio" name="nave" value="Caza TIE" > Caza&nbsp TIE&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+              <img class ="esferaimagen" src="nave-cazatie.png" alt="Caza TIE">
+            </p>
+          </div>
+          <div id="musica">
+            <p>Elija que cancion desea escuchar:</p>
+            <p>
+              <input type="radio" name="cancion" value="StarWars" checked>StarWars
+            </p>
+            <p>
+              <input type="radio" name="cancion" value="MarchaImperial" >Marcha Imperial
+            </p>
+            <p>
+              <input type="radio" name="cancion" value="cantina" >StarWars Cantina
+            </p>
+            <p>
+              <input type="radio" name="cancion" value="SinMusica" >Sin Musica
+            </p>
+          </div>
+
+          <div id="elegirpelota">
+            <p>Skins para la esfera:</p>
+            <p>
+              <input type="radio" name="pelota" value="estrellaadelamuerte" checked> Estrella de la Muerte
+              <img class ="esferaimagen" src="estrella-pelota.png" alt="Estrella de la muerte">
+            </p>
+            <p>
+              <input type="radio" name="pelota" value="planetatierra" > Planeta&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspTierra
+              <img class ="esferaimagen" src="tierra-pelota.png" alt="Planeta Tierra">
+            </p>
+            <p>
+              <input type="radio" name="pelota" value="planetamustafar" > Planeta&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspMustafar
+              <img class ="esferaimagen" src="mustafar-pelota.png" alt="Planeta Mustafar">
+            </p>
+            <p>
+              <input type="radio" name="pelota" value="cuerpobb8" > Cuerpo&nbsp&nbsp&nbsp&nbsp&nbspde&nbsp&nbsp&nbsp&nbsp&nbspBb8
+              <img class ="esferaimagen" src="cuerpobb8-pelota.png" alt="Cuerpo BB8">
+            </p>
+          </div>
+        </div>
+
+      </body>
+    </head>
+    <meta charset="UTF-8"/>
+    <style> /* He decidido meter el estilo en el mismo archivo aunque seria
+               mejor un css, en su lugar lo he intentado organizar para que sea
+               mas facil de entender */
+			   body{
+           background-image: url('estrellas.png');
+           margin          :                    0;
+           background-size :                cover;
+         }
+			   canvas{
+           display     :        block;
+           margin-left :         auto;
+           margin-right:         auto;
+           width       :         100%;
+           height      :         100%;
+         }
+         #controlvolumen{
+           text-align  :       center;
+           color       :       yellow;
+           font-size   :         50px;
+           padding     :          1px;
+           line-height :         10px;
+           position    :     absolute;
+         }
+         #instrucciones{
+           text-align  :       center;
+           color       :       yellow;
+           font-size   :         50px;
+           padding     :          1px;
+           line-height :         10px;
+         }
+         #elegirpelota{
+           font-size   :         25px;
+           width       :        350px;
+           height      :        520px;
+           color       :       yellow;
+           float       :        right;
+           border      : yellow solid;
+           margin-left :        175px;
+           padding     :         10px;
+          position     :     absolute;
+         }
+         #personalización{
+           font-size   :         25px;
+           width       :        350px;
+           height      :        520px;
+           color       :       yellow;
+           float       :        right;
+           border      : yellow solid;
+           margin-left :       575px;
+           padding     :         10px;
+          position     :     absolute;
+         }
+         #musica{
+           font-size   :         25px;
+           width       :        350px;
+           height      :        520px;
+           color       :       yellow;
+           float       :        right;
+           border      : yellow solid;
+           margin-left :        975px;
+           padding     :         10px;
+          position     :     absolute;
+          }
+
+         #jugabilidad{
+           font-size  :         25px;
+           width      :        350px;
+           height     :        520px;
+           color      :       yellow;
+           border     : yellow solid;
+           margin-left:       1375px;
+           padding    :         10px;
+          position    :     absolute;
+         }
+         #MARCADOR{font-size: 50;}
+         .esferaimagen{height: 50px;}
+		</style>
+    <title>PONG_3D_Enrique_Estebaranz</title>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/103/three.min.js"></script>
+
+   <script>
+
+//He realizado mi practica utilizando animation-collision-detection.html como base.
+
+     var stepX = 0.15;
+     var stepY = 0.25;
+     var direction = "stop";
+     var velocidadbot = 0.25; // Esta es la velocidad que tendra el bot el usuario tiene la misma.
+     var velocidadusuario = 0.25;
+     var marcador_jugador = 0; //Guardamos los puntos de nuestro ususario.
+     var marcador_bot = 0; //Guardamos los puntos del bot.
+     var ganador = 5; //Fin de la partida.
+     var acelerador = 0; // Funcionamiento avanzado-velocidad de desplazamiento vertical.
+     var deteccion = 0; // Varia la dificultad.
+     var error = 0;
+
+
+     window.onkeydown = function(ev) {
+       switch (ev.keyCode){
+         //Izquierda
+         case 37: direction = "left";
+         break;
+         case 65: direction = "left";
+         break;
+         //Derecha
+         case 39: direction = "right";
+         break;
+         case 68: direction = "right";
+         break;
+         //Espacio
+         case 32: pelota = document.querySelector('input[name="pelota"]:checked').value;
+                  nave = document.querySelector('input[name="nave"]:checked').value;
+                  cancion = document.querySelector('input[name="cancion"]:checked').value;
+                  document.getElementById("inicio").innerHTML = "";
+                  init();
+         break;
+       }
+     }
+     window.onkeyup = function(ev) { // Evitamos que el hexaedro se mueva sin parar
+       switch (ev.keyCode){
+         case 37: direction = "stop";
+         break;
+         case 68: direction = "stop";
+         break;
+         case 39: direction = "stop";
+         break;
+         case 65: direction = "stop";
+         break;
+       }
+     }
+
+     function init() {
+       var scene = new THREE.Scene();
+       scene.background = new THREE.TextureLoader().load("estrellas.png");
+       var sceneWidth = 1800;
+       var sceneHeight = 700;
+       var lejania = document.querySelector('input[name="lejania"]:checked').value;
+       var camera = new THREE.PerspectiveCamera(lejania, sceneWidth/sceneHeight, 0.01, 100);
+       camera.position.set(0, -20, 20);
+       camera.lookAt(scene.position);
+       var renderer = new THREE.WebGLRenderer
+       renderer.shadowMap.enabled = true;
+       renderer.setSize(sceneWidth, sceneHeight);
+       document.body.appendChild(renderer.domElement);
+
+       //MUSICA
+       getSound();
+
+       //ILUMINACIÓN
+       // He decidido poner dos focos en cada lado para que se note mejor el efecto de sombra que debe producir la esfera.
+       var focoderecho = getLight(2,2,2); //mediante la variacion de (x, y, z) indicamos la posicion del foco.
+       scene.add(focoderecho); // Luz derecha.
+       var focoizquierdo = getLight(-2,2,2); //mediante la variacion de (x, y, z) indicamos la posicion del foco.
+       scene.add(focoizquierdo); // Luz izquierda.
+
+       //BORDES DEL TABLERO
+       var bordeIzquierdo = getBorder("left", 1, 30, 1 , -10, 0, 0); //Borde lateral izquierdo
+       scene.add(bordeIzquierdo); //Al declarar que y es 30 se puntuara en los puntos -15 y 15.
+       var bordeDerecho = getBorder("right", 1, 30, 1, 10, 0, 0); //Borde lateral izquierdo
+       scene.add(bordeDerecho); //Al declarar que y es 30 se puntuara en los puntos -15 y 15.
+
+       //HEXAEDROS DE LOS JUGADORES(NAVE)
+       //creamos un if para adaptar a la "nave" segun la distancia de la camara
+       if (lejania == 50){
+         var bot = getNave("top", 13);
+         scene.add(bot); //Genero la nave del bot
+         var usuario = getNave("down", -13);//Genero la nave del bot
+         scene.add(usuario); //Genero la nave del usuario
+       }else if (lejania == 60){
+         var bot = getNave("top", 14);
+         scene.add(bot); //Genero la nave del bot
+         var usuario = getNave("down", -14);
+         scene.add(usuario); //Genero la nave del usuario
+       }else{
+         var bot = getNave("top", 15);
+         scene.add(bot); //Genero la nave del bot
+         var usuario = getNave("down", -15);
+         scene.add(usuario); //Genero la nave del usuario
+       }
+       // Creo el array borders
+       var borders = [bordeIzquierdo, bordeDerecho, usuario, bot];
+
+       // GENERAMOS ESFERA
+       var esfera = getSphere();
+       scene.add(esfera);
+
+       //GENERAMOS EL SUELO
+       var suelo = getFloor();
+       scene.add(suelo);
+
+       //Dos formas de hacer que la dificultad varie , una era cambiando la velocidad de la "nave" del bot
+       // y la otra haciedno que el bot detecte la pelota antes (es la mas justa)
+       var dificultad  = document.querySelector('input[name="dificultad "]:checked').value;
+       switch(dificultad){
+         case "1": deteccion = 5; // Muy Facil
+         break;
+         case "2": deteccion = 0; // Facil
+         break;
+         case "3": deteccion = -5; // Normal
+         break;
+         case "4": deteccion = -10; // Dificil
+         break;
+       }
+       animate(esfera, borders, renderer, scene, camera, deteccion);
+       // Elimino el menu de personalización del pong para dar paso al juego.
+       document.getElementById("pantallainicio").innerHTML = "";
+     }
+
+
+     function animate(esfera, borders, renderer, scene, camera, deteccion){
+       checkCollision(esfera, borders);
+       manejo_jugador(borders)
+       requestAnimationFrame(function() {
+         animate(esfera, borders, renderer, scene, camera, deteccion);
+       });
+       esfera.position.x += stepX; // Movimiento de la esfera en x.
+       esfera.position.y += stepY; // Movimiento de la esfera en y.
+
+       // Aqui podemos meter un if para variar la dificultad poniendo el tiempo de deteccion fijo y variando la variable velocidadbot.
+       // Implementamos el rango de movimiento del bot y añadimos "deteccion" dado anteriormente.
+       if(borders[3].position.x == -7){
+         borders[3].position.x += velocidadbot;
+       }else if(borders[3].position.x == 7){
+         borders[3].position.x -= velocidadbot;
+       }else if(esfera.position.x > borders[3].position.x && esfera.position.y > deteccion){
+         borders[3].position.x += velocidadbot;
+       }else if(esfera.position.x < borders[3].position.x && esfera.position.y > deteccion){
+         borders[3].position.x -= velocidadbot;
+       }
+       //Miro si la bola ha pasado los limetas por arriba o por abajo y sumo puntos
+       if (esfera.position.y < -15 || esfera.position.y > 15){
+         if(esfera.position.y < -15){
+           //if(marcador_bot == ganador){ //error salta tarde
+             //document.location.reload();
+             //alert("                  El bot ha ganado la partida \n\n Para continuar pulse espacio o haga click en Aceptar")
+          //}else{
+            //marcador_bot += 1;}
+           marcador_bot += 1; // La esfera ha pasado la linea del usuario y bot ganado un punto.
+         }else{
+           //if(marcador_jugador == ganador){ //error salta tarde
+             //document.location.reload();
+             //alert("                  Felicidades, has ganado la partida \n\n Para continuar pulse espacio o haga click en Aceptar")
+          //}else{
+            //marcador_bot += 1;}
+           marcador_jugador += 1; // La esfera ha pasado la linea del bot y usuario ganado un punto.
+         }
+         var ultimopunto = esfera.position.y; //Creamos una variable para guardar el perdedor del ultimo punto.
+         document.getElementById("MARCADOR").innerHTML = marcador_jugador + " - " + marcador_bot;
+
+         //Reiniciamos los valores para comenzar un nuevo punto.
+         esfera.position.x = 0;//Posicion inicial ejeX.
+         esfera.position.y = 0;//Posicion inicial ejeY.
+         borders[2].position.x = 0;//Posicion inicial del jugador.
+         borders[3].position.x = 0;//Posicion inicial del bot.
+         //El que pierda el punto obtiene el saque.
+         if (ultimopunto < 0){
+           stepX = lado_random()*inclinacion_random(); // Totalmente aleatorio
+           stepY = -0.25; //Va hacia nosotros
+         }else{
+           stepX = lado_random()*inclinacion_random(); // Totalmente aleatorio
+           stepY = 0.25 //Va hacia la maquina
+         }
+         ganadorpartida();
+       }
+       renderer.render(scene,camera);
+     }
+
+
+     function getLight(posx,posy,posz) {
+       var light = new THREE.DirectionalLight();
+       light.position.set(posx, posy, posz);
+       light.castShadow = true;
+       light.shadow.camera.near = 0;
+       light.shadow.camera.far = 20;
+       light.shadow.camera.left = -30;
+       light.shadow.camera.right = 30;
+       light.shadow.camera.top = 30;
+       light.shadow.camera.bottom = -30;
+       light.shadow.mapSize.width = 1080;
+       light.shadow.mapSize.height = 1080;
+       return light;
+     }
+
+     function getSphere() {
+       var geometry = new THREE.SphereGeometry(1, 20, 20);
+       var mesh = new THREE.Mesh(geometry, texturaEsfera());
+       mesh.position.z = 0;
+       mesh.castShadow = true;
+
+       return mesh;
+     }
+
+     function getFloor() {
+       var geometry = new THREE.PlaneGeometry(20, 30); //(Ancho, Largo).
+       var mesh = new THREE.Mesh(geometry, texturaSuelo());
+       mesh.receiveShadow = true;
+
+       return mesh;
+     }
+
+     function getBorder(name, x, y, z, posX, posY, posZ) {
+       var geometry = new THREE.BoxGeometry(x, y, z);
+       var mesh = new THREE.Mesh(geometry, texturaBordes());
+       mesh.receiveShadow = true;
+       mesh.position.set(posX, posY, posZ);
+       mesh.name = name;
+
+       return mesh;
+     }
+
+     function getNave(name, posY){
+       var geometry = new THREE.BoxGeometry(5, 2, 1); // (x, y, profundidad).
+       var mesh = new THREE.Mesh(geometry, texturaNave());
+       mesh.receiveShadow = true;
+       mesh.name = name;
+       mesh.position.y = posY;
+
+       return mesh;
+     }
+
+
+     function manejo_jugador(borders){
+       var acelerador = 0; // Funcionamiento avanzado-velocidad de desplazamiento vertical.
+       if(direction == "left"){
+         // Implementamos el rango de movimiento del ususario izq.
+         if(borders[2].position.x == -7){
+           borders[2].position.x == 0;
+         }else{
+           borders[2].position.x -= velocidadusuario;
+           acelerador += 1; // Un contador que nos permite calcular la variable de la nave del ususario del eje X.
+           // console.log(acelerador)
+         }
+       }else if(direction == "right"){
+         // Implementamos el rango de movimiento del ususario der.
+         if(borders[2].position.x == 7){
+           borders[2].position.x == 0;
+         }else{
+           borders[2].position.x += velocidadusuario;
+           acelerador += 1;// Un contador que nos permite calcular la variable de la nave del ususario del eje X.
+           // console.log(acelerador)
+         }
+       }else if(direction = "stop"){
+         borders[2].position.x == 0;
+       }
+     }
+
+     function ganadorpartida(){
+       // Apaño para indicar el ganador de la partida
+       if(marcador_jugador == ganador){
+         document.location.reload();
+         alert("                  Felicidades, has ganado la partida \n\n Para continuar pulse espacio o haga click en Aceptar")
+       }else if(marcador_bot == ganador){
+         document.location.reload();
+         alert("                  El bot ha ganado la partida \n\n Para continuar pulse espacio o haga click en Aceptar")
+       }
+
+     }
+
+     //Una forma aleatoria de conseguir que la pelota salga de forma totalmente random
+     //respecto al eje x
+     function lado_random(){
+       //lado izquirdo o derecho, se termermina de forma aleatoria.
+        random1 = Math.round(Math.random() * (2 - 1) + 1);
+        if(random1 == 1){
+          return -1
+        }else{
+          return 1
+        }
+     }
+     function inclinacion_random(){
+       //Determinamos la inclinacion de forma aleatoria.
+       random2 = Math.round(Math.random() * (30 - 5) + 5);
+       return  random2 *0.01
+     }
+     function velocidadniveles(){
+       // Determinamos una velocidad aleatoria para cuando rebote en la nave del bot
+       var velocidadniveles = (Math.random() * ((-1.0)-(-1.4))+(-1.4));
+      return velocidadniveles
+     }
+
+
+     function getSound(){
+       var listen = new THREE.AudioListener();
+       var sound = new THREE.Audio(listen);
+       var audioLoader = new THREE.AudioLoader();
+       if(cancion == "StarWars"){
+         var music = "starwars.mp3";
+       }else if(cancion == "MarchaImperial"){
+         var music = "marchaimperial.mp3";
+       }else if(cancion == "cantina"){
+         var music = "starwarscantina.mp3";
+       }else{
+         var music ="";
+       }
+       audioLoader.load(music, function(buffer) {
+         sound.setBuffer(buffer);
+         sound.setLoop(true);
+         barra.addEventListener("change",function(ev){
+           sound.setVolume(ev.currentTarget.value);
+         },true)
+         sound.play();
+       });
+     }
+
+
+     function checkCollision(esfera, borders) {
+       var velocidad = 0;
+       error++; // Solucion del errro que se genera al colisionar
+       for (var i = 0; i < esfera.geometry.vertices.length; i++) {
+         var localVertex = esfera.geometry.vertices[i].clone();
+         var globalVertex = localVertex.applyMatrix4(esfera.matrix);
+         var directionVector = globalVertex.sub(esfera.position);
+         var ray = new THREE.Raycaster(esfera.position.clone(), directionVector.clone().normalize());
+         var collisionResults = ray.intersectObjects(borders);
+         if (collisionResults.length > 0 && collisionResults[0].distance < directionVector.length()) {
+           if (collisionResults[0].object.name == "left" || collisionResults[0].object.name == "right") {
+             stepX *= -1;
+           }
+           if(error > 20){
+             if(acelerador < 10){ // Usamos la variable como un acelerador, a mayor movimiento de x mayor velocidad
+               velocidad = -1.0;
+             }else if(acelerador < 20){
+               velocidad = -1.1;
+             }else if(acelerador < 30){
+               velocidad = -1.2;
+             }else if(acelerador < 50){
+               velocidad = -1.3;
+             }else{
+               velocidad = -1.4;
+             }
+             if (collisionResults[0].object.name == "top"){ // Rebota con la nave de la maquina.
+               stepY *= velocidadniveles(); // El choque con la nave del bot da una velocidad.
+               // console.log(velocidadniveles)
+               error = 0;
+               acelerador = 0; // Reiniciamos la variable para que comience de nuevo al chocar con el bot (como dice el enunciado).
+           }else if (collisionResults[0].object.name == "down") { // Rebota con la nave del ususario.
+             if(collisionResults[0].point.x < borders[2].position.x + 1 && collisionResults[0].point.x > borders[2].position.x - 1){
+               stepY *= velocidad;
+               stepX *= 0.75;
+               error = 0;
+             }else if(collisionResults[0].point.x > borders[2].position.x + 1 || collisionResults[0].point.x < borders[2].position.x - 1){
+               stepY *= velocidad;
+               stepX *= 1.5;
+               error = 0;
+             }
+           }
+           }
+           break;
+         }
+       }
+     }
+
+
+     function texturaEsfera() {
+        //Textura esfera.
+       if(pelota == "estrellaadelamuerte"){
+         var texture = new THREE.TextureLoader().load("estrella-pelota.png");
+       }else if(pelota == "planetatierra"){
+         var texture = new THREE.TextureLoader().load("tierra-pelota.png");
+       }else if(pelota =="planetamustafar"){
+         var texture = new THREE.TextureLoader().load("mustafar-pelota.png");
+       }else{
+         var texture = new THREE.TextureLoader().load("cuerpobb8-pelota.png");
+       }
+       var material = new THREE.MeshPhongMaterial({
+         map : texture
+       });
+       material.side = THREE.DoubleSide;
+       return material;
+     }
+
+     function texturaSuelo() {
+       //Textura suelo.
+       var texture = new THREE.TextureLoader().load("fondo-tablero.jpg");
+       var material = new THREE.MeshPhongMaterial({
+         map : texture
+       });
+       material.side = THREE.DoubleSide;
+       return material;
+     }
+
+     function texturaBordes() {
+       //Textura bordes
+       var texture = new THREE.TextureLoader().load("laterales-material.png");
+       var material = new THREE.MeshPhongMaterial({
+         map : texture
+       });
+       material.side = THREE.DoubleSide;
+       return material;
+     }
+
+     function texturaNave() {
+       //Textura naves
+       if (nave == "X-WING"){
+         var texture = new THREE.TextureLoader().load("nave-jugador.png");
+       }else if(nave == "Halcón Milenario"){
+         var texture = new THREE.TextureLoader().load("nave-Halcon.png");
+       }else if(nave == "destructor"){
+         var texture = new THREE.TextureLoader().load("destructor-nave.png");
+       }else{
+         var texture = new THREE.TextureLoader().load("nave-cazatie.png");
+       }
+
+       var material = new THREE.MeshPhongMaterial({
+         map : texture
+       });
+       material.side = THREE.DoubleSide;
+       return material;
+     }
+
+   </script>
+</html>
